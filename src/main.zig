@@ -5,12 +5,17 @@ const c = @cImport({
     @cInclude("windows.h");
 });
 
-export fn mainWindowCallback(window: win.HWND, msg: win.UINT, w_param: win.WPARAM, l_param: win.LPARAM) win.LRESULT {
-    _ = window;
-    _ = msg;
-    _ = w_param;
-    _ = l_param;
-    return 0;
+export fn mainWindowCallback(window: c.HWND, msg: c.UINT, w_param: c.WPARAM, l_param: c.LPARAM) c.LRESULT {
+    var result: c.LRESULT = undefined;
+
+    switch (msg) {
+        c.WM_SIZE => {},
+        else => {
+            result = c.DefWindowProcA(window, msg, w_param, l_param);
+        },
+    }
+
+    return result;
 }
 
 pub export fn wWinMain(hInstance: win.HINSTANCE, hPrevInstance: ?win.HINSTANCE, lpCmdLine: ?[*:0]u16, nShowCmd: c_int) c_int {
@@ -27,14 +32,27 @@ pub export fn wWinMain(hInstance: win.HINSTANCE, hPrevInstance: ?win.HINSTANCE, 
     //   hInstance: [*c]struct_HINSTANCE__,
     //   lpParam: ?*anyopaque)
 
-    const window_class: c.WNDCLASS = .{
+    const window_class: c.WNDCLASSA = .{
         .style = c.CS_OWNDC | c.CS_HREDRAW | c.CS_VREDRAW,
         .lpfnWndProc = mainWindowCallback,
-        .hInstance = hInstance,
-        .lpszClassName = "AyooooTestclassname",
+        .hInstance = @ptrCast(@alignCast(hInstance)),
+        .lpszClassName = @ptrCast(@alignCast("AyooooTestclassname")),
     };
 
-    _ = hInstance;
+    if (c.RegisterClassA(&window_class) != 0) {
+        const hwnd = c.CreateWindowExA(0, window_class.lpszClassName, "Taylors Test", c.WS_OVERLAPPEDWINDOW | c.WS_VISIBLE, c.CW_USEDEFAULT, c.CW_USEDEFAULT, c.CW_USEDEFAULT, c.CW_USEDEFAULT, null, null, @ptrCast(@alignCast(hInstance)), null);
+        if (hwnd != null) {
+            var msg: c.MSG = undefined;
+            while (true) {
+                const msg_result = c.GetMessageA(&msg, null, 0, 0);
+                if (msg_result != 0) {
+                    _ = c.TranslateMessage(&msg);
+                    _ = c.DispatchMessageA(&msg);
+                }
+            }
+        }
+    }
+
     _ = hPrevInstance;
     _ = lpCmdLine;
     _ = nShowCmd;
