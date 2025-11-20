@@ -1,22 +1,13 @@
 const std = @import("std");
 const win = std.os.windows;
+const graphics = @import("graphics.zig");
 
 const c = @cImport({
     @cInclude("windows.h");
 });
 
-const WIDTH = 600;
-const HEIGHT = 400;
-
-const Pixel = packed struct {
-    b: u8,
-    g: u8,
-    r: u8,
-    a: u8,
-};
-
 var is_running = true;
-var buf: []Pixel = undefined;
+var buf: []graphics.Pixel = undefined;
 var buf_bitmap_info: c.BITMAPINFO = undefined;
 
 fn blitScreen(device_context: c.HDC, width: c_long, height: c_long) void {
@@ -28,8 +19,8 @@ fn blitScreen(device_context: c.HDC, width: c_long, height: c_long) void {
         height,
         0,
         0,
-        WIDTH,
-        HEIGHT,
+        graphics.WIDTH,
+        graphics.HEIGHT,
         @ptrCast(buf),
         &buf_bitmap_info,
         c.DIB_RGB_COLORS,
@@ -75,7 +66,7 @@ pub export fn wWinMain(
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
 
-    buf = arena.allocator().alignedAlloc(Pixel, std.mem.Alignment.@"32", WIDTH * HEIGHT) catch {
+    buf = arena.allocator().alignedAlloc(graphics.Pixel, std.mem.Alignment.@"32", graphics.WIDTH * graphics.HEIGHT) catch {
         var stderr_buf: [1024]u8 = undefined;
         var stderr_writer = std.fs.File.stderr().writer(&stderr_buf);
         const stderr = &stderr_writer.interface;
@@ -90,7 +81,7 @@ pub export fn wWinMain(
         .a = 0,
     });
 
-    buf[((HEIGHT / 2) * WIDTH) + (WIDTH / 2)] = .{
+    buf[((graphics.HEIGHT / 2) * graphics.WIDTH) + (graphics.WIDTH / 2)] = .{
         .r = 0,
         .g = 0xff,
         .b = 0,
@@ -100,8 +91,8 @@ pub export fn wWinMain(
     buf_bitmap_info = .{
         .bmiHeader = .{
             .biSize = @sizeOf(c.BITMAPINFOHEADER),
-            .biWidth = WIDTH,
-            .biHeight = -HEIGHT,
+            .biWidth = graphics.WIDTH,
+            .biHeight = -graphics.HEIGHT,
             .biPlanes = 1,
             .biBitCount = 32,
             .biCompression = c.BI_RGB,
