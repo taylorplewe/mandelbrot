@@ -14,6 +14,7 @@ pub fn build(b: *std.Build) void {
     });
     exe.root_module.link_libc = true;
     exe.root_module.linkSystemLibrary("user32", .{});
+    exe.root_module.linkSystemLibrary("gdi32", .{});
     exe.mingw_unicode_entry_point = true;
 
     b.installArtifact(exe);
