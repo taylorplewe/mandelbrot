@@ -89,7 +89,9 @@ pub export fn wWinMain(
         .a = 0,
     };
 
+    std.debug.print("calculating...", .{});
     mandelbrot.fillPixelsWithMandelbrot(buf);
+    std.debug.print("done.\n", .{});
 
     buf_bitmap_info = .{
         .bmiHeader = .{
@@ -113,12 +115,12 @@ pub export fn wWinMain(
         const hwnd = c.CreateWindowExA(
             0,
             window_class.lpszClassName,
-            "Taylors Test",
+            "Mandelbrot",
             c.WS_OVERLAPPED | c.WS_SYSMENU | c.WS_VISIBLE,
             c.CW_USEDEFAULT,
             c.CW_USEDEFAULT,
-            c.CW_USEDEFAULT,
-            c.CW_USEDEFAULT,
+            graphics.WIDTH,
+            graphics.HEIGHT,
             null,
             null,
             @ptrCast(@alignCast(hInstance)),

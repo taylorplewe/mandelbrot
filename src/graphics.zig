@@ -1,5 +1,5 @@
-pub const WIDTH = 600;
-pub const HEIGHT = 400;
+pub const WIDTH = 1400;
+pub const HEIGHT = 1000;
 
 pub const Pixel = packed struct {
     b: u8,
