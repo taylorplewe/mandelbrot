@@ -1,6 +1,7 @@
 const std = @import("std");
 const win = std.os.windows;
 const graphics = @import("graphics.zig");
+const mandelbrot = @import("mandelbrot.zig");
 
 const c = @cImport({
     @cInclude("windows.h");
@@ -87,6 +88,8 @@ pub export fn wWinMain(
         .b = 0,
         .a = 0,
     };
+
+    mandelbrot.fillPixelsWithMandelbrot(buf);
 
     buf_bitmap_info = .{
         .bmiHeader = .{
