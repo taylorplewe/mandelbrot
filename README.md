@@ -2,7 +2,7 @@
 Mandelbrot Set viewer
 
 Here's what I have so far:
-<img width="1386" height="993" alt="image" src="https://github.com/user-attachments/assets/a7984669-02c0-439f-8903-46dbc372744e" />
+<img width="1386" height="993" alt="image" src="https://github.com/user-attachments/assets/fa00ffc9-3654-48ff-8b7c-5080d3ed3435" />
 
 ```bash
 zig build
