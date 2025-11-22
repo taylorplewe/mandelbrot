@@ -6,7 +6,7 @@ Here's what I have so far:
 
 ## Building
 Requires [zig >0.15.2](https://ziglang.org/download/#release-0.15.2)
-```bash
+```sh
 zig build --release
 ./zig-out/bin/mandelbrot.exe
 ```
