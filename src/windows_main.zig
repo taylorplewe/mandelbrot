@@ -2,12 +2,13 @@ const std = @import("std");
 const win = std.os.windows;
 const shared = @import("shared.zig");
 const mandelbrot = @import("mandelbrot.zig");
+const disp = @import("disp.zig");
+const print = disp.print;
 
 const c = @cImport({
     @cInclude("windows.h");
 });
 
-var is_running = true;
 var buf: []shared.Pixel = undefined;
 var buf_bitmap_info: c.BITMAPINFO = undefined;
 
@@ -67,6 +68,8 @@ pub export fn wWinMain(
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
 
+    disp.init();
+
     buf = arena.allocator().alignedAlloc(shared.Pixel, std.mem.Alignment.@"32", shared.WIDTH * shared.HEIGHT) catch {
         var stderr_buf: [1024]u8 = undefined;
         var stderr_writer = std.fs.File.stderr().writer(&stderr_buf);
@@ -89,9 +92,9 @@ pub export fn wWinMain(
         .a = 0,
     };
 
-    std.debug.print("calculating...", .{});
+    print("calculating...");
     mandelbrot.fillPixelsWithMandelbrot(buf);
-    std.debug.print("done.\n", .{});
+    print("done.\n");
 
     buf_bitmap_info = .{
         .bmiHeader = .{
