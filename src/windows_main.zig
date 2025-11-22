@@ -41,6 +41,7 @@ export fn mainWindowCallback(
     switch (msg) {
         c.WM_CLOSE, c.WM_DESTROY => exit(),
         c.WM_SIZE => {},
+        c.WM_KEYDOWN, c.WM_SYSKEYDOWN => if (w_param == 'Q') exit(),
         c.WM_PAINT => {
             var paint: c.PAINTSTRUCT = undefined;
             const device_context = c.BeginPaint(window, &paint);
@@ -60,37 +61,23 @@ export fn mainWindowCallback(
 }
 
 pub export fn wWinMain(
-    hInstance: win.HINSTANCE,
-    hPrevInstance: ?win.HINSTANCE,
-    lpCmdLine: ?[*:0]u16,
-    nShowCmd: c_int,
+    h_instance: win.HINSTANCE,
+    h_prev_instance: ?win.HINSTANCE,
+    lp_cmd_line: ?[*:0]u16,
+    n_show_cmd: c_int,
 ) c_int {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
 
     disp.init();
 
-    buf = arena.allocator().alignedAlloc(shared.Pixel, std.mem.Alignment.@"32", shared.WIDTH * shared.HEIGHT) catch {
-        var stderr_buf: [1024]u8 = undefined;
-        var stderr_writer = std.fs.File.stderr().writer(&stderr_buf);
-        const stderr = &stderr_writer.interface;
-        defer stderr.flush() catch unreachable;
-        stderr.print("\x1b[31merror\x1b[0m - could not allocate pixel buffer\n", .{}) catch unreachable;
-        return 1;
-    };
+    buf = arena.allocator().alignedAlloc(shared.Pixel, std.mem.Alignment.@"32", shared.WIDTH * shared.HEIGHT) catch return disp.printErrorAndBounceErrorCode("could not allocate pixel buffer", 1);
     @memset(buf, .{
         .r = 0,
         .g = 0,
         .b = 0,
         .a = 0,
     });
-
-    buf[((shared.HEIGHT / 2) * shared.WIDTH) + (shared.WIDTH / 2)] = .{
-        .r = 0,
-        .g = 0xff,
-        .b = 0,
-        .a = 0,
-    };
 
     print("calculating...");
     mandelbrot.fillPixelsWithMandelbrot(buf);
@@ -110,7 +97,7 @@ pub export fn wWinMain(
     const window_class: c.WNDCLASSA = .{
         .style = c.CS_OWNDC | c.CS_HREDRAW | c.CS_VREDRAW,
         .lpfnWndProc = mainWindowCallback,
-        .hInstance = @ptrCast(@alignCast(hInstance)),
+        .hInstance = @ptrCast(@alignCast(h_instance)),
         .lpszClassName = @ptrCast(@alignCast("AyooooTestclassname")),
     };
 
@@ -126,7 +113,7 @@ pub export fn wWinMain(
             shared.HEIGHT,
             null,
             null,
-            @ptrCast(@alignCast(hInstance)),
+            @ptrCast(@alignCast(h_instance)),
             null,
         );
         if (hwnd != null) {
@@ -148,9 +135,9 @@ pub export fn wWinMain(
         }
     }
 
-    _ = hPrevInstance;
-    _ = lpCmdLine;
-    _ = nShowCmd;
+    _ = h_prev_instance;
+    _ = lp_cmd_line;
+    _ = n_show_cmd;
     return 0;
 }
 
