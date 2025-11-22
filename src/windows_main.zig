@@ -2,8 +2,8 @@ const std = @import("std");
 const win = std.os.windows;
 const shared = @import("shared.zig");
 const mandelbrot = @import("mandelbrot.zig");
-const disp = @import("disp.zig");
-const print = disp.print;
+const console = @import("console.zig");
+const print = console.print;
 
 const c = @cImport({
     @cInclude("windows.h");
@@ -69,9 +69,9 @@ pub export fn wWinMain(
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
 
-    disp.init();
+    console.init();
 
-    buf = arena.allocator().alignedAlloc(shared.Pixel, std.mem.Alignment.@"32", shared.WIDTH * shared.HEIGHT) catch return disp.printErrorAndBounceErrorCode("could not allocate pixel buffer", 1);
+    buf = arena.allocator().alignedAlloc(shared.Pixel, std.mem.Alignment.@"32", shared.WIDTH * shared.HEIGHT) catch return console.printErrorAndBounceErrorCode("could not allocate pixel buffer", 1);
     @memset(buf, .{
         .r = 0,
         .g = 0,
