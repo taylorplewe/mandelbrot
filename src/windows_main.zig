@@ -1,6 +1,6 @@
 const std = @import("std");
 const win = std.os.windows;
-const graphics = @import("graphics.zig");
+const shared = @import("shared.zig");
 const mandelbrot = @import("mandelbrot.zig");
 
 const c = @cImport({
@@ -8,7 +8,7 @@ const c = @cImport({
 });
 
 var is_running = true;
-var buf: []graphics.Pixel = undefined;
+var buf: []shared.Pixel = undefined;
 var buf_bitmap_info: c.BITMAPINFO = undefined;
 
 fn blitScreen(device_context: c.HDC, width: c_long, height: c_long) void {
@@ -20,8 +20,8 @@ fn blitScreen(device_context: c.HDC, width: c_long, height: c_long) void {
         height,
         0,
         0,
-        graphics.WIDTH,
-        graphics.HEIGHT,
+        shared.WIDTH,
+        shared.HEIGHT,
         @ptrCast(buf),
         &buf_bitmap_info,
         c.DIB_RGB_COLORS,
@@ -67,7 +67,7 @@ pub export fn wWinMain(
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
 
-    buf = arena.allocator().alignedAlloc(graphics.Pixel, std.mem.Alignment.@"32", graphics.WIDTH * graphics.HEIGHT) catch {
+    buf = arena.allocator().alignedAlloc(shared.Pixel, std.mem.Alignment.@"32", shared.WIDTH * shared.HEIGHT) catch {
         var stderr_buf: [1024]u8 = undefined;
         var stderr_writer = std.fs.File.stderr().writer(&stderr_buf);
         const stderr = &stderr_writer.interface;
@@ -82,7 +82,7 @@ pub export fn wWinMain(
         .a = 0,
     });
 
-    buf[((graphics.HEIGHT / 2) * graphics.WIDTH) + (graphics.WIDTH / 2)] = .{
+    buf[((shared.HEIGHT / 2) * shared.WIDTH) + (shared.WIDTH / 2)] = .{
         .r = 0,
         .g = 0xff,
         .b = 0,
@@ -96,8 +96,8 @@ pub export fn wWinMain(
     buf_bitmap_info = .{
         .bmiHeader = .{
             .biSize = @sizeOf(c.BITMAPINFOHEADER),
-            .biWidth = graphics.WIDTH,
-            .biHeight = -graphics.HEIGHT,
+            .biWidth = shared.WIDTH,
+            .biHeight = -shared.HEIGHT,
             .biPlanes = 1,
             .biBitCount = 32,
             .biCompression = c.BI_RGB,
@@ -119,8 +119,8 @@ pub export fn wWinMain(
             c.WS_OVERLAPPED | c.WS_SYSMENU | c.WS_VISIBLE,
             c.CW_USEDEFAULT,
             c.CW_USEDEFAULT,
-            graphics.WIDTH,
-            graphics.HEIGHT,
+            shared.WIDTH,
+            shared.HEIGHT,
             null,
             null,
             @ptrCast(@alignCast(hInstance)),
